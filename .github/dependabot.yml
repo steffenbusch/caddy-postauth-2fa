@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Update Go dependencies
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
