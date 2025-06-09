@@ -41,7 +41,7 @@ import (
 //   - TOTP 2FA enforcement after primary authentication (e.g., basic_auth, jwtauth, etc.)
 //   - Per-user TOTP secrets (plaintext or encrypted), loaded from a JSON file (map of usernames)
 //   - Configurable inactivity timeout for 2FA sessions (JWT-based, stateless, cookie storage)
-//   - Optional IP binding for session validation (enabled by default, can be disabled or templated)
+//   - Optional IP binding for session validation (enabled by default, can be disabled)
 //   - Customizable session cookie name, path, and domain
 //   - Customizable HTML form template for TOTP code entry
 //   - Per-user or global TOTP code length (6 or 8 digits)
