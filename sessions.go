@@ -74,7 +74,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 		zap.String("client_ip", clientIP),
 	)
 
-	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

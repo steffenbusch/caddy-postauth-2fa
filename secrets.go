@@ -52,7 +52,7 @@ func (m *postauth2fa) getSecretForUser(username string) (secret string, codeLeng
 		secret = entry.TOTPSecret
 	case entry.TOTPSecretEncrypted != "":
 		if len(m.encryptionKeyBytes) != 32 {
-			return "", 0, fmt.Errorf("TOTP secret is encrypted, but no valid 32-byte encryption key is configured")
+			return "", 0, fmt.Errorf("encrypted TOTP secret found, but no valid encryption key is configured")
 		}
 		secret, err = decryptTOTPSecret(entry.TOTPSecretEncrypted, m.encryptionKeyBytes)
 		if err != nil {
