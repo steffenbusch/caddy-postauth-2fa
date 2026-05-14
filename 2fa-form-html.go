@@ -96,6 +96,9 @@ func (m *postauth2fa) show2FAForm(w http.ResponseWriter, formData formData) {
 	// Set the Content-Type and Content-Security-Policy headers with nonce
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'self' 'nonce-"+nonce+"'; script-src 'self' 'nonce-"+nonce+"'; form-action 'self';")
+	if m.FormResponseHeaderName != "" {
+		w.Header().Set(m.FormResponseHeaderName, m.FormResponseHeaderValue)
+	}
 	w.WriteHeader(http.StatusOK)
 
 	// Execute the template and write the output to the response

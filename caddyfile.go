@@ -62,6 +62,16 @@ func (m *postauth2fa) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				m.EncryptionKey = arg
 			case "form_template":
 				m.FormTemplateFile = arg
+			case "form_response_header":
+				m.FormResponseHeaderName = arg
+				var secondArg string
+				if d.Args(&secondArg) {
+					m.FormResponseHeaderValue = secondArg
+					var thirdArg string
+					if d.Args(&thirdArg) {
+						return d.Errf("form_response_header accepts at most two arguments")
+					}
+				}
 			case "ip_binding":
 				m.IPBinding = arg
 			case "secrets_file_path":

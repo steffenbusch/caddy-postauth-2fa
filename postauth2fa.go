@@ -22,6 +22,7 @@ import (
 	"html/template"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -81,6 +82,12 @@ type postauth2fa struct {
 
 	// Filename of the custom template to use instead of the embedded default template.
 	FormTemplateFile string `json:"form_template,omitempty"`
+
+	// FormResponseHeaderName defines the response header name injected on 2FA challenge responses.
+	FormResponseHeaderName string `json:"form_response_header_name,omitempty"`
+
+	// FormResponseHeaderValue defines the response header value injected on 2FA challenge responses.
+	FormResponseHeaderValue string `json:"form_response_header_value,omitempty"`
 
 	// TOTPCodeLength defines the expected length of the TOTP code (default: 6).
 	TOTPCodeLength int `json:"totp_code_length,omitempty"`
@@ -214,6 +221,16 @@ func (m *postauth2fa) Validate() error {
 	// Check if the optional base64 decoded encryption key has the correct length
 	if m.EncryptionKey != "" && len(m.encryptionKeyBytes) != 32 {
 		return fmt.Errorf("decoded encryption key must be 32 bytes (256 bits) long, but is %d bytes", len(m.encryptionKeyBytes))
+	}
+
+	// Validate form response header settings
+	if m.FormResponseHeaderName != "" {
+		if !strings.HasPrefix(m.FormResponseHeaderName, "X-") {
+			return fmt.Errorf("FormResponseHeaderName must start with 'X-'")
+		}
+		if m.FormResponseHeaderValue == "" {
+			m.FormResponseHeaderValue = "true"
+		}
 	}
 
 	// Validate TOTPCodeLength

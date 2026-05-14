@@ -95,6 +95,7 @@ $ xcaddy build --with github.com/steffenbusch/caddy-postauth-2fa
             secrets_file_path /path/to/2fa-secrets.json
             cookie_name postauth2fa_sess
             cookie_path /top-secret
+            form_response_header X-2FA-Required true
             form_template /path/to/custom-2fa-form-template.html
             sign_key {file.jwt-secret.txt}
             encryption_key {file.encryption-key.txt}
@@ -113,6 +114,7 @@ $ xcaddy build --with github.com/steffenbusch/caddy-postauth-2fa
 - **`cookie_name`**: Name for the session cookie (default: `cpa_sess`).
 - **`cookie_path`**: Path scope for the session cookie (default: `/`).
 - **`cookie_domain`**: Domain scope for the session cookie (optional).
+- **`form_response_header`**: Configure a custom response header emitted for 2FA challenge responses. The first argument is the header name and must start with `X-`; the second argument is the header value. If the second argument is omitted, the value defaults to `true`. This is useful for JavaScript clients to detect 2FA challenges in `fetch`/XHR responses without parsing HTML.
 - **`form_template`**: Path to a custom HTML template for the 2FA form (optional). If not specified, an embedded default template `default-2fa-form.html` will be used.
 - **`sign_key`**: Base64-encoded secret key for signing JWTs (required, at least 32 bytes).
 - **`encryption_key`**: Base64-encoded key for decrypting encrypted TOTP secrets (required if any `totp_secret_encrypted` entries are present in the secrets JSON file; must be 32 bytes).
