@@ -36,7 +36,7 @@ func (m *postauth2fa) createOrUpdateJWTCookie(w http.ResponseWriter, username, c
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(m.signKeyBytes)
 	if err != nil {
-		m.logger.Error("Failed to sign JWT", zap.Error(err))
+		m.logger.Error("Failed to sign postauth2fa JWT", zap.Error(err))
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -83,9 +83,9 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			// Log JWT expiration as info
-			logger.Info("JWT has expired", zap.Error(err))
+			logger.Info("postauth2fa JWT has expired", zap.Error(err))
 		} else {
-			logger.Error("Failed to parse or validate JWT", zap.Error(err))
+			logger.Error("Failed to parse or validate postauth2fa JWT", zap.Error(err))
 		}
 		return false
 	}
@@ -93,7 +93,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		// Always check username
 		if claims["username"] != username {
-			logger.Warn("JWT does not match username",
+			logger.Warn("postauth2fa JWT does not match username",
 				zap.String("token_username", fmt.Sprintf("%v", claims["username"])),
 			)
 			return false
@@ -101,7 +101,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 		// Only check client IP if IP binding is enabled
 		if ipBindingValue != "false" {
 			if claims["clientIP"] != clientIP {
-				logger.Warn("JWT does not match client IP",
+				logger.Warn("postauth2fa JWT does not match client IP",
 					zap.String("token_client_ip", fmt.Sprintf("%v", claims["clientIP"])),
 				)
 				return false
@@ -111,7 +111,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 		expiration := time.Unix(int64(claims["exp"].(float64)), 0)
 		threshold := m.SessionInactivityTimeout / 2
 		if time.Until(expiration) < threshold {
-			logger.Debug("Extending session", zap.Time("expiration", expiration))
+			logger.Debug("Extending session", zap.Time("expiration_before_extension", expiration))
 			m.createOrUpdateJWTCookie(w, username, clientIP)
 		}
 		return true
