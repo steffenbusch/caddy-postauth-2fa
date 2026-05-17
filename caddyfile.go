@@ -93,6 +93,8 @@ func (m *postauth2fa) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return d.Errf("invalid totp_code_length: eiher 6 or 8 digits are allowed")
 				}
 				m.TOTPCodeLength = length
+			case "channel_suffix":
+				m.ChannelSuffix = arg
 			case "username_placeholder":
 				m.UsernamePlaceholder = arg
 			default:

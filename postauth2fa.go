@@ -92,6 +92,10 @@ type postauth2fa struct {
 	// TOTPCodeLength defines the expected length of the TOTP code (default: 6).
 	TOTPCodeLength int `json:"totp_code_length,omitempty"`
 
+	// ChannelSuffix is an optional value passed into the 2FA form template as .ChannelSuffix.
+	// It can be used by custom HTML templates for per-application channel naming or other shared context.
+	ChannelSuffix string `json:"channel_suffix,omitempty"`
+
 	// template is the parsed HTML template used to render the 2FA form.
 	formTemplate *template.Template
 
@@ -274,9 +278,11 @@ func (m *postauth2fa) ServeHTTP(w http.ResponseWriter, r *http.Request, next cad
 		return next.ServeHTTP(w, r)
 	}
 
-	// Initialize FormData with the html escaped username
+	// Initialize FormData with the html escaped username.
+	// ChannelSuffix is passed through as configured and subject to template escaping.
 	formData := formData{
-		Username: html.EscapeString(username),
+		Username:      html.EscapeString(username),
+		ChannelSuffix: m.ChannelSuffix,
 	}
 
 	// Attempt to retrieve the TOTP secret for the user.

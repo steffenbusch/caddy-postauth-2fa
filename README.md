@@ -100,6 +100,7 @@ $ xcaddy build --with github.com/steffenbusch/caddy-postauth-2fa
             sign_key {file.jwt-secret.txt}
             encryption_key {file.encryption-key.txt}
             totp_code_length 8
+            channel_suffix _example
         }
 
         respond "Welcome, you have passed primary and TOTP authentication!"
@@ -116,6 +117,7 @@ $ xcaddy build --with github.com/steffenbusch/caddy-postauth-2fa
 - **`cookie_domain`**: Domain scope for the session cookie (optional).
 - **`form_response_header`**: Configure a custom response header emitted for 2FA challenge responses. The first argument is the header name and must start with `X-`; the second argument is the header value. If the second argument is omitted, the value defaults to `true`. This is useful for JavaScript clients to detect 2FA challenges in `fetch`/XHR responses without parsing HTML.
 - **`form_template`**: Path to a custom HTML template for the 2FA form (optional). If not specified, an embedded default template `default-2fa-form.html` will be used.
+- **`channel_suffix`**: Optional string made available to the 2FA form template as `{{ .ChannelSuffix }}`. This is useful for context-sensitive client-side logic such as channel names used in `BroadcastChannel`.
 - **`sign_key`**: Base64-encoded secret key for signing JWTs (required, at least 32 bytes).
 - **`encryption_key`**: Base64-encoded key for decrypting encrypted TOTP secrets (required if any `totp_secret_encrypted` entries are present in the secrets JSON file; must be 32 bytes).
 - **`totp_code_length`**: (Optional) Specifies the global length of the TOTP code, which can be either 6 (default) or 8 digits. This setting can be overridden for individual users in the secrets file.

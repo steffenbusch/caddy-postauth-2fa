@@ -38,6 +38,7 @@ type formData struct {
 	ErrorMessage   string
 	Username       string
 	TOTPCodeLength int
+	ChannelSuffix  string
 }
 
 // generateNonce generates a random base64 nonce
