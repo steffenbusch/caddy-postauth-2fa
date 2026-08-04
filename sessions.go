@@ -26,11 +26,12 @@ import (
 
 // createOrUpdateJWTCookie generates a new JWT with a specified client IP or updates an existing one, and logs the details.
 func (m *postauth2fa) createOrUpdateJWTCookie(w http.ResponseWriter, username, clientIP string) {
-	expiration := time.Now().Add(m.SessionInactivityTimeout)
+	now := m.now()
+	expiration := now.Add(m.SessionInactivityTimeout)
 	claims := jwt.MapClaims{
 		"username": username,
 		"clientIP": clientIP,
-		"iat":      time.Now().Unix(),
+		"iat":      now.Unix(),
 		"exp":      expiration.Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -79,7 +80,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return m.signKeyBytes, nil
-	}, jwt.WithValidMethods([]string{"HS256"})) // Enforcing HS256 only
+	}, jwt.WithValidMethods([]string{"HS256"}), jwt.WithTimeFunc(m.now)) // Enforcing HS256 only
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			// Log JWT expiration as info
@@ -110,7 +111,7 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 		// Extend session if less than 50% of inactivity timeout remains
 		expiration := time.Unix(int64(claims["exp"].(float64)), 0)
 		threshold := m.SessionInactivityTimeout / 2
-		if time.Until(expiration) < threshold {
+		if expiration.Sub(m.now()) < threshold {
 			logger.Debug("Extending session", zap.Time("expiration_before_extension", expiration))
 			m.createOrUpdateJWTCookie(w, username, clientIP)
 		}
