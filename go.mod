@@ -6,7 +6,7 @@ require (
 	github.com/caddyserver/caddy/v2 v2.11.2
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/pquerna/otp v1.5.0
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 )
 
 require (
