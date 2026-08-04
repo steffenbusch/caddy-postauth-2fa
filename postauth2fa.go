@@ -122,6 +122,9 @@ type postauth2fa struct {
 	// logger provides structured logging for the module.
 	// It's initialized in the Provision method and used throughout the module for debug information.
 	logger *zap.Logger
+
+	// timeNow returns the current time and can be overridden in tests.
+	timeNow func() time.Time
 }
 
 // CaddyModule returns the Caddy module information.
@@ -330,7 +333,7 @@ func (m *postauth2fa) ServeHTTP(w http.ResponseWriter, r *http.Request, next cad
 	}
 
 	// Validate the TOTP code with the user's secret and code length.
-	valid, err := validateTOTPCode(totpCode, secret, codeLength)
+	valid, err := validateTOTPCodeAtTime(totpCode, secret, codeLength, m.now().UTC())
 	if !valid || err != nil {
 		// If validation fails, log an invalid TOTP attempt for monitoring tools like fail2ban.
 		logger.Warn("Invalid TOTP attempt", zap.Error(err))
@@ -379,14 +382,21 @@ func isValidTOTPCodeLength(length int) bool {
 	return length == int(otp.DigitsSix) || length == int(otp.DigitsEight)
 }
 
-func validateTOTPCode(code, secret string, codeLength int) (bool, error) {
+func validateTOTPCodeAtTime(code, secret string, codeLength int, now time.Time) (bool, error) {
 	opts := totp.ValidateOpts{
 		Period:    30,
 		Skew:      1,
 		Digits:    otp.Digits(codeLength),
 		Algorithm: otp.AlgorithmSHA1,
 	}
-	return totp.ValidateCustom(code, secret, time.Now().UTC(), opts)
+	return totp.ValidateCustom(code, secret, now, opts)
+}
+
+func (m *postauth2fa) now() time.Time {
+	if m.timeNow != nil {
+		return m.timeNow()
+	}
+	return time.Now()
 }
 
 // Interface guards to ensure postauth2fa implements the necessary interfaces.
