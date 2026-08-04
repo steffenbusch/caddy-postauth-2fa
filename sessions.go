@@ -80,7 +80,10 @@ func (m *postauth2fa) hasValidJWTCookie(w http.ResponseWriter, r *http.Request, 
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return m.signKeyBytes, nil
-	}, jwt.WithValidMethods([]string{"HS256"}), jwt.WithTimeFunc(m.now)) // Enforcing HS256 only
+	},
+		jwt.WithValidMethods([]string{"HS256"}), // Enforce HS256 only.
+		jwt.WithTimeFunc(m.now),                 // Use the module's time source for expiry validation.
+	)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			// Log JWT expiration as info
