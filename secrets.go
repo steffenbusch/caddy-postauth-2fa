@@ -74,7 +74,7 @@ func (m *postauth2fa) loadUserSecrets() error {
 	if err != nil {
 		return fmt.Errorf("failed to open secrets file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// The file is a map: username -> userSecretEntry
 	var secrets map[string]userSecretEntry
